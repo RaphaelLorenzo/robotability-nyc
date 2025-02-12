@@ -103,10 +103,11 @@ def calculate_weights(survey_path=None, contingency_matrix_path=None, exclude_fe
         df = pd.read_csv(survey_path)
         # Remove first 4 columns, and first 2 rows
         df = df.iloc[1:, 4:]
+        print(df.columns)
         # Remove unnecessary columns
-        df = df.drop(['RecordedDate', 'ResponseId', 'RecipientLastName', 'RecipientFirstName', 'RecipientEmail',
-                      'ExternalReference', 'LocationLatitude', 'LocationLongitude', 'DistributionChannel', 'UserLanguage',
-                      'Q_RecaptchaScore', 'Instruction'], axis=1)
+        #df = df.drop(['RecordedDate', 'ResponseId', 'RecipientLastName', 'RecipientFirstName', 'RecipientEmail',
+        #              'ExternalReference', 'LocationLatitude', 'LocationLongitude', 'DistributionChannel', 'UserLanguage',
+         #             'Q_RecaptchaScore', 'Instruction'], axis=1)
 
         new_cols = []
         for col in df.columns:
