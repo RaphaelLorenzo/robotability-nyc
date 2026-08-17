@@ -54,7 +54,7 @@ traffic['camera_heading'].describe()
 
 # %%
 # load nyc sidewalk graph 
-nyc_sidewalks = pd.read_csv("../data/sidewalks_nyc_segmentized.csv", engine='pyarrow')
+nyc_sidewalks = pd.read_csv("data/sidewalks_nyc_segmentized.csv", engine='pyarrow')
 nyc_sidewalks = gpd.GeoDataFrame(nyc_sidewalks, geometry=nyc_sidewalks['geometry'].apply(wkt.loads), crs='EPSG:2263')
 
 # %%
@@ -160,7 +160,7 @@ print(f"Rows with 0 crowdedness data: {zero_crowdedness_count} points, {zero_cro
 
 # %%
 # write average traffic to disk 
-avg_traffic_by_sidewalk.to_csv(f"../data/avg_traffic_by_sidewalk_august.csv")
+avg_traffic_by_sidewalk.to_csv(f"data/avg_traffic_by_sidewalk_august.csv")
 
 # %%
 

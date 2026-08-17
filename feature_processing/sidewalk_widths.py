@@ -27,7 +27,8 @@ crs = 'EPSG:3627' #local crs
 
 # %%
 #df = gpd.read_file("../data/Sidewalk.geojson")
-df = pd.read_csv("../data/NYC_Planimetric_Database__Sidewalk_20250212.csv")
+# edit @raphael, went downloading manually on https://data.cityofnewyork.us/City-Government/NYC-Planimetric-Database-Sidewalk/vfx9-tbb6 and updated the path
+df = pd.read_csv("data/NYC_Planimetric_Database__Sidewalk_20260817.csv")
 # load wkt geometry 
 df = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry=gpd.GeoSeries.from_wkt(df['the_geom']))
 print("Loaded sidewalk data")
@@ -240,7 +241,7 @@ df_exploded = gpd.GeoDataFrame(df_exploded, crs=crs, geometry='centerlines')
 df_exploded.plot(figsize=(12, 12), cmap='tab10').get_figure().savefig('centerlines.png')
 
 # %%
-df_exploded.to_file('../data/sidewalk_centerlines.geojson')
-df_segments.to_file('../data/sidewalk_widths.geojson')
+df_exploded.to_file('data/sidewalk_centerlines.geojson')
+df_segments.to_file('data/sidewalk_widths.geojson')
 
 
