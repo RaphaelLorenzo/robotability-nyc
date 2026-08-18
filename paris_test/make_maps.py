@@ -72,14 +72,19 @@ def main(args):
     sidewalk_widths_path = os.path.join(processed_dir, "sidewalk_widths_paris.geojson")
     pedestrian_density_path = os.path.join(processed_dir, "pedestrian_density_paris.geojson")
 
+    crowd_dynamics_path = os.path.join(processed_dir, "crowd_dynamics_paris.geojson")
+
     sidewalks = gpd.read_file(sidewalks_path)
     sidewalk_widths = gpd.read_file(sidewalk_widths_path)
     pedestrian_density = gpd.read_file(pedestrian_density_path) if os.path.exists(pedestrian_density_path) else None
+    crowd_dynamics = gpd.read_file(crowd_dynamics_path) if os.path.exists(crowd_dynamics_path) else None
 
     print(f"Reading sidewalks from {sidewalks_path} : got {sidewalks.shape[0]} rows")
     print(f"Reading sidewalk widths from {sidewalk_widths_path} : got {sidewalk_widths.shape[0]} rows")
     if pedestrian_density is not None:
         print(f"Reading pedestrian density from {pedestrian_density_path} : got {pedestrian_density.shape[0]} rows")
+    if crowd_dynamics is not None:
+        print(f"Reading crowd dynamics from {crowd_dynamics_path} : got {crowd_dynamics.shape[0]} rows")
 
     plt.rc("font", family="serif")
 
@@ -87,6 +92,8 @@ def main(args):
     sidewalk_widths = sidewalk_widths.to_crs("EPSG:3857")
     if pedestrian_density is not None:
         pedestrian_density = pedestrian_density.to_crs("EPSG:3857")
+    if crowd_dynamics is not None:
+        crowd_dynamics = crowd_dynamics.to_crs("EPSG:3857")
 
     unique_tiles = sorted(sidewalks["pvp_tile"].dropna().unique())
     unique_qas = sorted(sidewalks["qa_c_qu"].dropna().unique())
@@ -215,6 +222,40 @@ def main(args):
             clamp_to_unit_interval=True,
         )
         print(f"Wrote {os.path.join(figures_dir, 'pedestrian_density_score.png')}")
+
+    if crowd_dynamics is not None:
+        crowd_specs = [
+            ("crowd_dynamics_zti_score", None, "ZTI membership (0.5 inside zone)"),
+            ("crowd_dynamics_tourist_sites_count_raw", "crowd_dynamics_tourist_sites_count_score", "Tourist sites count"),
+            ("crowd_dynamics_tourism_score", None, "Tourism purpose score before invert"),
+        ]
+        for raw_column, score_column, title_prefix in crowd_specs:
+            plot_continuous_map(
+                crowd_dynamics,
+                raw_column,
+                os.path.join(figures_dir, f"{raw_column}.png"),
+                f"{title_prefix} per sidewalk sample point",
+                clamp_to_unit_interval=("score" in raw_column),
+            )
+            print(f"Wrote {os.path.join(figures_dir, f'{raw_column}.png')}")
+            if score_column is not None:
+                plot_continuous_map(
+                    crowd_dynamics,
+                    score_column,
+                    os.path.join(figures_dir, f"{score_column}.png"),
+                    f"{title_prefix} score (2.5%-99.5% clamped)",
+                    clamp_to_unit_interval=True,
+                )
+                print(f"Wrote {os.path.join(figures_dir, f'{score_column}.png')}")
+
+        plot_continuous_map(
+            crowd_dynamics,
+            "crowd_dynamics_score",
+            os.path.join(figures_dir, "crowd_dynamics_score.png"),
+            "Crowd dynamics score (inverted, NYC polarity)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'crowd_dynamics_score.png')}")
 
 
 if __name__ == "__main__":

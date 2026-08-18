@@ -91,6 +91,10 @@ def main(args):
             "path": os.path.join(raw_dir, "sites_touristiques_raw.geojson"),
             "catalog_url": "https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets",
         },
+        "zones_touristiques_internationales": {
+            "dataset_id": "zones-touristiques-internationales",
+            "path": os.path.join(raw_dir, "zones_touristiques_internationales_raw.geojson"),
+        },
     }
 
     # Download each dataset as a GeoJSON export.
