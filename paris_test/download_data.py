@@ -5,11 +5,11 @@ import shutil
 from urllib.request import urlretrieve
 
 
-def download_geojson(dataset_id, out_path, force=False, catalog_url=None):
-    """Download one Explore v2 GeoJSON export and unpack gzip responses."""
+def download_geojson(dataset_id, out_path, force=False, catalog_url=None, export_format="geojson"):
+    """Download one Explore v2 export and unpack gzip responses."""
     if catalog_url is None:
         catalog_url = "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets"
-    url = f"{catalog_url}/{dataset_id}/exports/geojson"
+    url = f"{catalog_url}/{dataset_id}/exports/{export_format}"
 
     if os.path.exists(out_path) and not force:
         print(f"Skipping {dataset_id}, file already exists: {out_path}")
@@ -95,6 +95,27 @@ def main(args):
             "dataset_id": "zones-touristiques-internationales",
             "path": os.path.join(raw_dir, "zones_touristiques_internationales_raw.geojson"),
         },
+        "chantiers": {
+            "dataset_id": "chantiers-a-paris",
+            "path": os.path.join(raw_dir, "chantiers_a_paris_raw.geojson"),
+        },
+        "dans_ma_rue": {
+            "dataset_id": "dans-ma-rue",
+            "path": os.path.join(raw_dir, "dans_ma_rue_raw.geojson"),
+        },
+        "aires_pietonnes": {
+            "dataset_id": "aires-pietonnes",
+            "path": os.path.join(raw_dir, "aires_pietonnes_raw.geojson"),
+        },
+        "zones_de_rencontre": {
+            "dataset_id": "zones-de-rencontre",
+            "path": os.path.join(raw_dir, "zones_de_rencontre_raw.geojson"),
+        },
+        "accidentologie": {
+            "dataset_id": "accidentologie0",
+            "path": os.path.join(raw_dir, "accidentologie_victimes.csv"),
+            "export_format": "csv",
+        },
     }
 
     # Download each dataset as a GeoJSON export.
@@ -105,6 +126,7 @@ def main(args):
             dataset["path"],
             force=args.force,
             catalog_url=dataset.get("catalog_url"),
+            export_format=dataset.get("export_format", "geojson"),
         )
 
 
