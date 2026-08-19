@@ -20,8 +20,14 @@ def plot_categorical_map(gdf, output_path, title, **plot_kwargs):
     plt.close(fig)
 
 
-def plot_continuous_map(gdf, column, output_path, title, clamp_to_unit_interval=False):
-    """Plot and save a continuous map with a colorbar."""
+def plot_continuous_map(
+    gdf, column, output_path, title, clamp_to_unit_interval=False, vmin=None, vmax=None
+):
+    """Plot and save a continuous map with a colorbar.
+
+    When clamp_to_unit_interval is True, fixes vmin/vmax to [0, 1].
+    When vmin/vmax are provided they override the default data range.
+    """
     if column not in gdf.columns:
         print(f"Skipping {column}, column not found.")
         return
@@ -33,6 +39,7 @@ def plot_continuous_map(gdf, column, output_path, title, clamp_to_unit_interval=
 
     fig, ax = plt.subplots(figsize=(14, 14))
     is_point = gdf.geometry.geom_type.isin(["Point", "MultiPoint"]).all()
+    is_line = gdf.geometry.geom_type.isin(["LineString", "MultiLineString"]).all()
     plot_kwargs = {
         "ax": ax,
         "column": column,
@@ -43,12 +50,19 @@ def plot_continuous_map(gdf, column, output_path, title, clamp_to_unit_interval=
     if is_point:
         plot_kwargs["markersize"] = 2
         plot_kwargs["linewidth"] = 0
+    elif is_line:
+        plot_kwargs["linewidth"] = 0.5
     else:
         plot_kwargs["linewidth"] = 0.15
         plot_kwargs["edgecolor"] = "none"
     if clamp_to_unit_interval:
         plot_kwargs["vmin"] = 0.0
         plot_kwargs["vmax"] = 1.0
+    else:
+        if vmin is not None:
+            plot_kwargs["vmin"] = vmin
+        if vmax is not None:
+            plot_kwargs["vmax"] = vmax
 
     gdf.plot(**plot_kwargs)
     ax.set_title(title)
@@ -61,7 +75,16 @@ def plot_continuous_map(gdf, column, output_path, title, clamp_to_unit_interval=
 def selected_features(args):
     """Expand --features into the map groups that should be written."""
     if "all" in args.features:
-        return {"sidewalks", "pedestrian_density", "crowd_dynamics", "surface_condition", "intersection_safety"}
+        return {
+            "sidewalks",
+            "pedestrian_density",
+            "crowd_dynamics",
+            "surface_condition",
+            "intersection_safety",
+            "street_furniture_density",
+            "curb_ramps",
+            "traffic_management",
+        }
     return set(args.features)
 
 
@@ -82,6 +105,9 @@ def main(args):
     crowd_dynamics_path = os.path.join(processed_dir, "crowd_dynamics_paris.geojson")
     surface_condition_path = os.path.join(processed_dir, "surface_condition_paris.geojson")
     intersection_safety_path = os.path.join(processed_dir, "intersection_safety_paris.geojson")
+    street_furniture_density_path = os.path.join(processed_dir, "street_furniture_density_paris.geojson")
+    curb_ramps_path = os.path.join(processed_dir, "curb_ramps_paris.geojson")
+    traffic_management_path = os.path.join(processed_dir, "traffic_management_paris.geojson")
 
     sidewalks = None
     sidewalk_widths = None
@@ -89,6 +115,9 @@ def main(args):
     crowd_dynamics = None
     surface_condition = None
     intersection_safety = None
+    street_furniture_density = None
+    curb_ramps = None
+    traffic_management = None
 
     if "sidewalks" in features:
         sidewalks = gpd.read_file(sidewalks_path)
@@ -107,6 +136,18 @@ def main(args):
     if "intersection_safety" in features and os.path.exists(intersection_safety_path):
         intersection_safety = gpd.read_file(intersection_safety_path)
         print(f"Reading intersection safety from {intersection_safety_path} : got {intersection_safety.shape[0]} rows")
+    if "street_furniture_density" in features and os.path.exists(street_furniture_density_path):
+        street_furniture_density = gpd.read_file(street_furniture_density_path)
+        print(
+            "Reading street furniture density from "
+            f"{street_furniture_density_path} : got {street_furniture_density.shape[0]} rows"
+        )
+    if "curb_ramps" in features and os.path.exists(curb_ramps_path):
+        curb_ramps = gpd.read_file(curb_ramps_path)
+        print(f"Reading curb ramps from {curb_ramps_path} : got {curb_ramps.shape[0]} rows")
+    if "traffic_management" in features and os.path.exists(traffic_management_path):
+        traffic_management = gpd.read_file(traffic_management_path)
+        print(f"Reading traffic management from {traffic_management_path} : got {traffic_management.shape[0]} rows")
 
     plt.rc("font", family="serif")
 
@@ -121,6 +162,12 @@ def main(args):
         surface_condition = surface_condition.to_crs("EPSG:3857")
     if intersection_safety is not None:
         intersection_safety = intersection_safety.to_crs("EPSG:3857")
+    if street_furniture_density is not None:
+        street_furniture_density = street_furniture_density.to_crs("EPSG:3857")
+    if curb_ramps is not None:
+        curb_ramps = curb_ramps.to_crs("EPSG:3857")
+    if traffic_management is not None:
+        traffic_management = traffic_management.to_crs("EPSG:3857")
 
     if sidewalks is not None:
         unique_tiles = sorted(sidewalks["pvp_tile"].dropna().unique())
@@ -209,6 +256,32 @@ def main(args):
         print(f"Wrote {os.path.join(figures_dir, 'sidewalk_widths_by_pvp_tile.png')}")
         print(f"Wrote {os.path.join(figures_dir, 'sidewalk_widths_by_arrondissement.png')}")
         print(f"Wrote {os.path.join(figures_dir, 'sidewalk_widths_by_qa.png')}")
+
+        # raw width — clamp color range to 2.5%–99.5% quantiles to suppress outliers
+        w_raw = pd.to_numeric(sidewalk_widths["width_m"], errors="coerce")
+        raw_lo, raw_hi = w_raw.quantile(0.025), w_raw.quantile(0.995)
+        plot_continuous_map(
+            sidewalk_widths,
+            "width_m",
+            os.path.join(figures_dir, "sidewalk_width_raw.png"),
+            "Sidewalk width (m)",
+            vmin=raw_lo,
+            vmax=raw_hi,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'sidewalk_width_raw.png')}")
+
+        # 0-1 normalized with 2.5%-99.5% quantile clamping
+        w = pd.to_numeric(sidewalk_widths["width_m"], errors="coerce")
+        lo, hi = w.quantile(0.025), w.quantile(0.995)
+        sidewalk_widths["width_m_score"] = ((w - lo) / (hi - lo)).clip(0.0, 1.0)
+        plot_continuous_map(
+            sidewalk_widths,
+            "width_m_score",
+            os.path.join(figures_dir, "sidewalk_width_score.png"),
+            "Sidewalk width score (2.5%-99.5% clamped)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'sidewalk_width_score.png')}")
 
     if pedestrian_density is not None:
         component_specs = [
@@ -354,6 +427,125 @@ def main(args):
         )
         print(f"Wrote {os.path.join(figures_dir, 'intersection_safety_score.png')}")
 
+    if street_furniture_density is not None:
+        street_furniture_specs = [
+            (
+                "street_furniture_jardinieres_bancs_corbeilles_count_raw",
+                "street_furniture_jardinieres_bancs_corbeilles_count_score",
+                "Jardinieres, bancs, and corbeilles",
+            ),
+            (
+                "street_furniture_bornes_barrieres_potelets_count_raw",
+                "street_furniture_bornes_barrieres_potelets_count_score",
+                "Bornes, barrieres, and potelets",
+            ),
+            (
+                "street_furniture_kiosques_toilettes_panneaux_count_raw",
+                "street_furniture_kiosques_toilettes_panneaux_count_score",
+                "Kiosques, toilettes, and panneaux",
+            ),
+            (
+                "street_furniture_composteurs_count_raw",
+                "street_furniture_composteurs_count_score",
+                "Composteurs",
+            ),
+            (
+                "street_furniture_trilib_count_raw",
+                "street_furniture_trilib_count_score",
+                "Trilib stations",
+            ),
+            (
+                "street_furniture_fontaines_count_raw",
+                "street_furniture_fontaines_count_score",
+                "Available Paris drinking fountains",
+            ),
+            (
+                "street_furniture_anomaly_count_raw",
+                "street_furniture_anomaly_count_score",
+                "Dans Ma Rue street-furniture anomalies",
+            ),
+        ]
+        for raw_column, score_column, title_prefix in street_furniture_specs:
+            plot_continuous_map(
+                street_furniture_density,
+                raw_column,
+                os.path.join(figures_dir, f"{raw_column}.png"),
+                f"{title_prefix} per sidewalk sample point",
+                clamp_to_unit_interval=("score" in raw_column),
+            )
+            print(f"Wrote {os.path.join(figures_dir, f'{raw_column}.png')}")
+            if score_column is not None:
+                plot_continuous_map(
+                    street_furniture_density,
+                    score_column,
+                    os.path.join(figures_dir, f"{score_column}.png"),
+                    f"{title_prefix} score (2.5%-99.5% clamped)",
+                    clamp_to_unit_interval=True,
+                )
+                print(f"Wrote {os.path.join(figures_dir, f'{score_column}.png')}")
+
+        plot_continuous_map(
+            street_furniture_density,
+            "street_furniture_density_score",
+            os.path.join(figures_dir, "street_furniture_density_score.png"),
+            "Street furniture density score (1 = less clutter)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'street_furniture_density_score.png')}")
+
+    if curb_ramps is not None:
+        for flag_column, title_prefix in [
+            ("curb_ramps_escalier_flag", "Voie en escalier"),
+            ("curb_ramps_accessibilite_flag", "Quartier d'accessibilité augmentée"),
+        ]:
+            plot_continuous_map(
+                curb_ramps,
+                flag_column,
+                os.path.join(figures_dir, f"{flag_column}.png"),
+                f"{title_prefix} flag",
+                clamp_to_unit_interval=True,
+            )
+            print(f"Wrote {os.path.join(figures_dir, f'{flag_column}.png')}")
+
+        plot_continuous_map(
+            curb_ramps,
+            "curb_ramps_score",
+            os.path.join(figures_dir, "curb_ramps_score.png"),
+            "Curb-ramp availability score (0 = stair street, 0.75 = default, 0.9 = accessibility quarter)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'curb_ramps_score.png')}")
+
+    if traffic_management is not None:
+        for raw_column, score_column, title_prefix in [
+            ("traffic_management_feux_count_raw", "traffic_management_feux_count_score", "Feux tricolores count"),
+            ("traffic_management_anomaly_count_raw", "traffic_management_anomaly_count_score", "Dans Ma Rue traffic-management anomalies"),
+        ]:
+            plot_continuous_map(
+                traffic_management,
+                raw_column,
+                os.path.join(figures_dir, f"{raw_column}.png"),
+                f"{title_prefix} per sidewalk sample point",
+            )
+            print(f"Wrote {os.path.join(figures_dir, f'{raw_column}.png')}")
+            plot_continuous_map(
+                traffic_management,
+                score_column,
+                os.path.join(figures_dir, f"{score_column}.png"),
+                f"{title_prefix} score (2.5%-99.5% clamped)",
+                clamp_to_unit_interval=True,
+            )
+            print(f"Wrote {os.path.join(figures_dir, f'{score_column}.png')}")
+
+        plot_continuous_map(
+            traffic_management,
+            "traffic_management_score",
+            os.path.join(figures_dir, "traffic_management_score.png"),
+            "Traffic management score (0.5 base + feux bonus − anomaly malus)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'traffic_management_score.png')}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create simple Paris sidewalk maps.")
@@ -361,7 +553,17 @@ if __name__ == "__main__":
         "--features",
         nargs="+",
         default=["all"],
-        choices=["all", "sidewalks", "pedestrian_density", "crowd_dynamics", "surface_condition", "intersection_safety"],
+        choices=[
+            "all",
+            "sidewalks",
+            "pedestrian_density",
+            "crowd_dynamics",
+            "surface_condition",
+            "intersection_safety",
+            "street_furniture_density",
+            "curb_ramps",
+            "traffic_management",
+        ],
         help="Which map groups to write (default: all)",
     )
     args = parser.parse_args()

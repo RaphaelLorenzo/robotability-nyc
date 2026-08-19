@@ -116,6 +116,42 @@ def main(args):
             "path": os.path.join(raw_dir, "accidentologie_victimes.csv"),
             "export_format": "csv",
         },
+        "street_furniture_jardinieres_bancs_corbeilles": {
+            "dataset_id": "plan-de-voirie-mobiliers-urbains-jardinieres-bancs-corbeilles-de-rue",
+            "path": os.path.join(raw_dir, "street_furniture_jardinieres_bancs_corbeilles_raw.geojson"),
+        },
+        "street_furniture_bornes_barrieres_potelets": {
+            "dataset_id": "plan-de-voirie-mobiliers-urbains-bornes-barrieres-potelets",
+            "path": os.path.join(raw_dir, "street_furniture_bornes_barrieres_potelets_raw.geojson"),
+        },
+        "street_furniture_kiosques_toilettes_panneaux": {
+            "dataset_id": "plan-de-voirie-mobiliers-urbains-kiosques-toilettes-publiques-panneaux-publicita",
+            "path": os.path.join(raw_dir, "street_furniture_kiosques_toilettes_panneaux_raw.geojson"),
+        },
+        "street_furniture_composteurs": {
+            "dataset_id": "dechets-menagers-points-dapport-volontaire-composteurs",
+            "path": os.path.join(raw_dir, "street_furniture_composteurs_raw.geojson"),
+        },
+        "street_furniture_trilib": {
+            "dataset_id": "dechets-menagers-points-dapport-volontaire-stations-trilib",
+            "path": os.path.join(raw_dir, "street_furniture_trilib_raw.geojson"),
+        },
+        "street_furniture_fontaines": {
+            "dataset_id": "fontaines-a-boire",
+            "path": os.path.join(raw_dir, "street_furniture_fontaines_raw.geojson"),
+        },
+        "voies_en_escalier": {
+            "dataset_id": "plan-de-voirie-voies-en-escalier",
+            "path": os.path.join(raw_dir, "voies_en_escalier_raw.geojson"),
+        },
+        "quartiers_accessibilite": {
+            "dataset_id": "perimetresqaa",
+            "path": os.path.join(raw_dir, "quartiers_accessibilite_raw.geojson"),
+        },
+        "feux_tricolores": {
+            "dataset_id": "signalisation-tricolore",
+            "path": os.path.join(raw_dir, "feux_tricolores_raw.geojson"),
+        },
     }
 
     # Download each dataset as a GeoJSON export.
