@@ -152,6 +152,38 @@ def main(args):
             "dataset_id": "signalisation-tricolore",
             "path": os.path.join(raw_dir, "feux_tricolores_raw.geojson"),
         },
+        "ztl": {
+            "dataset_id": "ztl",
+            "path": os.path.join(raw_dir, "ztl_raw.geojson"),
+        },
+        "paris_respire": {
+            "dataset_id": "secteurs-paris-respire",
+            "path": os.path.join(raw_dir, "paris_respire_raw.geojson"),
+        },
+        "points_de_nivellement": {
+            "dataset_id": "plan-de-voirie-points-de-nivellement-etiquettes",
+            "path": os.path.join(raw_dir, "points_de_nivellement_raw.geojson"),
+        },
+        "eclairage_public": {
+            "dataset_id": "eclairage-public",
+            "path": os.path.join(raw_dir, "eclairage_public_raw.geojson"),
+        },
+        "pistes_cyclables": {
+            "dataset_id": "plan-de-voirie-pistes-cyclables-et-couloirs-de-bus",
+            "path": os.path.join(raw_dir, "pistes_cyclables_raw.geojson"),
+        },
+        "velib_stations": {
+            "dataset_id": "velib-emplacement-des-stations",
+            "path": os.path.join(raw_dir, "velib_stations_raw.geojson"),
+        },
+        "arbres": {
+            "dataset_id": "les-arbres",
+            "path": os.path.join(raw_dir, "arbres_raw.geojson"),
+        },
+        "referentiel_comptages_routiers": {
+            "dataset_id": "referentiel-comptages-routiers",
+            "path": os.path.join(raw_dir, "referentiel_comptages_routiers_raw.geojson"),
+        },
     }
 
     # Download each dataset as a GeoJSON export.

@@ -16,6 +16,17 @@ Small testbed to see how far we can reproduce the NYC sidewalk base map in Paris
 - `compute_street_furniture_density.py`: counts nearby PVP street furniture, Trilib, composteurs, available Paris drinking fountains, and tagged Dans Ma Rue clutter reports in 25 ft buffers; combines into a weighted `street_furniture_density_score` (0 = none, 1 = dense).
 - `compute_curb_ramps.py`: scores curb-ramp availability — 0.75 everywhere, 0.0 on voies en escalier (buffered 5 m), 0.9 inside quartiers d'accessibilité augmentée.
 - `compute_traffic_management.py`: starts from 0.5, adds 0.5 × clamped feux-tricolores count (200 ft radius), subtracts 0.25 × clamped Dans Ma Rue traffic-management anomaly count.
+- `compute_zoning_regulation.py`: scores zoning regulation — 0.3 base, 0.7 in aires piétonnes or zones de rencontre, +0.1 in ZTL, +0.2 in Paris Respire secteurs.
+- `compute_slope_gradient.py`: averages nivellement altitudes within 25 ft of each sample point, then computes the mean slope (rise/run) to neighbors within 50 ft; normalizes and inverts so 1 = flat.
+- `compute_street_lighting.py`: counts public lamps within 25 ft, normalizes 2.5-99.5% to 0-1.
+- `compute_bike_lane.py`: flags adjacency (sidewalk width × 1.5, ≤8 m) to piste (0.8) or piste cyclable (1.0); couloir mixte excluded.
+- `compute_bike_traffic.py`: 0.8 if adjacent to piste/couloir mixte + 0.2 × clamped Vélib station count (200 ft).
+- `compute_charging_stations.py`: counts Vélib stations within 200 ft, normalizes 2.5-99.5% to 0-1.
+- `compute_shade.py`: counts trees ≥3 m within 50 ft (young trees weighted 0.5), normalizes 2.5-99.5% to 0-1.
+- `compute_vehicle_traffic.py`: queries the 2026-06-01 average road occupation rate, clamps 2.5-99.5%, and assigns the nearest traffic arc within 50 ft.
+- `compute_sidewalk_width.py`: turns `width_m` already present on the segmentized sidewalks into a dedicated 0-1 width feature.
+- `compute_communication_infrastructure.py`, `compute_digital_map_existence.py`, `compute_gps_signal_strength.py`, `compute_sidewalk_roughness.py`, `compute_surveillance_coverage.py`: assign fixed `1.0` values for now.
+- `rename_feature_outputs.py`: one-shot helper that renames already computed Paris outputs to the canonical `feature_weights.csv` names without recomputing.
 - `make_maps.py`: creates QA maps for processed sidewalks and raw/clamped feature maps for each score. Use `--features <name>` to plot a single group.
 
 ## Run order
@@ -33,8 +44,47 @@ conda run -n robotability python paris_test/compute_intersection_safety.py
 conda run -n robotability python paris_test/compute_street_furniture_density.py
 conda run -n robotability python paris_test/compute_curb_ramps.py
 conda run -n robotability python paris_test/compute_traffic_management.py
+conda run -n robotability python paris_test/compute_zoning_regulation.py
+conda run -n robotability python paris_test/compute_slope_gradient.py
+conda run -n robotability python paris_test/compute_street_lighting.py
+conda run -n robotability python paris_test/compute_bike_lane.py
+conda run -n robotability python paris_test/compute_bike_traffic.py
+conda run -n robotability python paris_test/compute_charging_stations.py
+conda run -n robotability python paris_test/compute_shade.py
+conda run -n robotability python paris_test/compute_vehicle_traffic.py
+conda run -n robotability python paris_test/compute_sidewalk_width.py
+conda run -n robotability python paris_test/compute_communication_infrastructure.py
+conda run -n robotability python paris_test/compute_digital_map_existence.py
+conda run -n robotability python paris_test/compute_gps_signal_strength.py
+conda run -n robotability python paris_test/compute_sidewalk_roughness.py
+conda run -n robotability python paris_test/compute_surveillance_coverage.py
+conda run -n robotability python paris_test/rename_feature_outputs.py   # only needed to convert old file names
 conda run -n robotability python paris_test/make_maps.py
 ```
+
+## Feature recap
+
+| Feature | Paris | New York | Polarity |
+| --- | --- | --- | --- |
+| `pedestrian_density` | Population + amenities + schools + stops + activities | Population + local attractors | `1 = denser pedestrian context` |
+| `crowd_dynamics` | ZTI + tourist-site signal, then inverted | Tourism / crowd proxy, inverted | `1 = calmer / less tourist-heavy` |
+| `surface_condition` | Chantiers + DMR surface anomalies | Sidewalk quality / defects | `1 = better surface` |
+| `sidewalk_width` | Normalize existing `width_m` on segmentized sidewalks | Normalize sidewalk width | `1 = wider` |
+| `street_furniture_density` | PVP furniture + Trilib + fountains + clutter reports | Street-furniture density | `1 = denser furniture` |
+| `intersection_safety` | Aires piétonnes / zones de rencontre + accidents + DMR | Calmed / safer intersections | `1 = safer` |
+| `curb_ramp_availability` | Escalier penalty + accessibility-quarter bonus | Actual curb-ramp availability | `1 = more available` |
+| `communication_infrastructure` | Fixed `1.0` | Sensor / comms availability | `1 = better` |
+| `digital_map_existence` | Fixed `1.0` | Digital-map coverage | `1 = better` |
+| `gps_signal_strength` | Fixed `1.0` | GPS signal quality | `1 = better` |
+| `vehicle_traffic` | 2026-06-01 mean road occupation rate from permanent counters | Traffic intensity / congestion proxy | `1 = more traffic` |
+| `sidewalk_roughness` | Fixed `1.0` | Roughness / vibration proxy | `1 = smoother / better` |
+| `slope_gradient` | Mean slope from nivellement labels and nearby sampled neighbors | Mean local slope from elevation | `1 = flatter` |
+| `traffic_management` | Feux tricolores bonus minus traffic-management anomalies | Traffic-control richness / quality | `1 = better managed` |
+| `zoning_laws` | Aires piétonnes / zones de rencontre + ZTL + Paris Respire | Regulated / calmed street regime | `1 = more protective regulation` |
+| `bicycle_traffic` | Bike-lane adjacency + nearby Vélib stations | Bicycle activity / bike presence proxy | `1 = more bike traffic` |
+| `charging_station_proximity` | Nearby Vélib stations | Nearby charging / dock access proxy | `1 = closer / denser access` |
+| `surveillance_coverage` | Fixed `1.0` | Camera / monitoring coverage | `1 = more coverage` |
+| `bike_lane_availability` | Adjacent piste / piste cyclable only | Adjacent protected cycling lane | `1 = more available` |
 
 ## Outputs
 
@@ -50,4 +100,23 @@ conda run -n robotability python paris_test/make_maps.py
 - `paris_test/data/processed/street_furniture_density_paris.geojson`: sample points with nearby clutter counts per source and the weighted street-furniture density score
 - `paris_test/data/processed/curb_ramps_paris.geojson`: sample points with escalier and accessibility-quarter flags and the curb-ramp availability score
 - `paris_test/data/processed/traffic_management_paris.geojson`: sample points with feux-tricolores counts, Dans Ma Rue anomaly counts, and the final traffic-management score
+- `paris_test/data/processed/zoning_regulation_paris.geojson`: sample points with pedestrian-zone, ZTL, and Paris Respire flags and the zoning-regulation score
+- `paris_test/data/processed/slope_gradient_paris.geojson`: sample points with assigned elevation, mean slope to neighbors, and the inverted slope-gradient score
+- `paris_test/data/processed/street_lighting_paris.geojson`: sample points with lamp count and the lighting score
+- `paris_test/data/processed/bike_lane_paris.geojson`: sample points with bike-lane adjacency score (0 / 0.8 / 1.0)
+- `paris_test/data/processed/bike_traffic_paris.geojson`: sample points with piste flag, Vélib count, and the bicycle-traffic score
+- `paris_test/data/processed/charging_stations_paris.geojson`: sample points with Vélib station count and the charging score
+- `paris_test/data/processed/shade_paris.geojson`: sample points with weighted tree count and the shade score
+- `paris_test/data/processed/vehicle_traffic_paris.geojson`: sample points with nearest-road occupation rate and the vehicle-traffic score
+- `paris_test/data/processed/sidewalk_width_paris.geojson`: sample points with raw `width_m` and the sidewalk-width score
+- `paris_test/data/processed/communication_infrastructure_paris.geojson`: sample points with constant `1.0` communication-infrastructure score
+- `paris_test/data/processed/digital_map_existence_paris.geojson`: sample points with constant `1.0` digital-map score
+- `paris_test/data/processed/gps_signal_strength_paris.geojson`: sample points with constant `1.0` GPS score
+- `paris_test/data/processed/sidewalk_roughness_paris.geojson`: sample points with constant `1.0` roughness score
+- `paris_test/data/processed/surveillance_coverage_paris.geojson`: sample points with constant `1.0` surveillance score
+- `paris_test/data/processed/curb_ramp_availability_paris.geojson`: canonical rename of the curb-ramp feature
+- `paris_test/data/processed/zoning_laws_paris.geojson`: canonical rename of the zoning-regulation feature
+- `paris_test/data/processed/charging_station_proximity_paris.geojson`: canonical rename of the charging feature
+- `paris_test/data/processed/bicycle_traffic_paris.geojson`: canonical rename of the bike-traffic feature
+- `paris_test/data/processed/bike_lane_availability_paris.geojson`: canonical rename of the bike-lane feature
 - `paris_test/figures/`: output maps

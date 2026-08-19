@@ -82,8 +82,22 @@ def selected_features(args):
             "surface_condition",
             "intersection_safety",
             "street_furniture_density",
-            "curb_ramps",
+            "curb_ramp_availability",
+            "communication_infrastructure",
+            "digital_map_existence",
+            "gps_signal_strength",
+            "vehicle_traffic",
+            "sidewalk_width",
+            "sidewalk_roughness",
             "traffic_management",
+            "zoning_laws",
+            "slope_gradient",
+            "street_lighting",
+            "bicycle_traffic",
+            "charging_station_proximity",
+            "surveillance_coverage",
+            "bike_lane_availability",
+            "shade",
         }
     return set(args.features)
 
@@ -107,7 +121,26 @@ def main(args):
     intersection_safety_path = os.path.join(processed_dir, "intersection_safety_paris.geojson")
     street_furniture_density_path = os.path.join(processed_dir, "street_furniture_density_paris.geojson")
     curb_ramps_path = os.path.join(processed_dir, "curb_ramps_paris.geojson")
+    curb_ramp_availability_path = os.path.join(processed_dir, "curb_ramp_availability_paris.geojson")
     traffic_management_path = os.path.join(processed_dir, "traffic_management_paris.geojson")
+    zoning_regulation_path = os.path.join(processed_dir, "zoning_regulation_paris.geojson")
+    zoning_laws_path = os.path.join(processed_dir, "zoning_laws_paris.geojson")
+    slope_gradient_path = os.path.join(processed_dir, "slope_gradient_paris.geojson")
+    street_lighting_path = os.path.join(processed_dir, "street_lighting_paris.geojson")
+    bike_traffic_path = os.path.join(processed_dir, "bike_traffic_paris.geojson")
+    bicycle_traffic_path = os.path.join(processed_dir, "bicycle_traffic_paris.geojson")
+    charging_stations_path = os.path.join(processed_dir, "charging_stations_paris.geojson")
+    charging_station_proximity_path = os.path.join(processed_dir, "charging_station_proximity_paris.geojson")
+    bike_lane_path = os.path.join(processed_dir, "bike_lane_paris.geojson")
+    bike_lane_availability_path = os.path.join(processed_dir, "bike_lane_availability_paris.geojson")
+    shade_path = os.path.join(processed_dir, "shade_paris.geojson")
+    vehicle_traffic_path = os.path.join(processed_dir, "vehicle_traffic_paris.geojson")
+    sidewalk_width_path = os.path.join(processed_dir, "sidewalk_width_paris.geojson")
+    communication_infrastructure_path = os.path.join(processed_dir, "communication_infrastructure_paris.geojson")
+    digital_map_existence_path = os.path.join(processed_dir, "digital_map_existence_paris.geojson")
+    gps_signal_strength_path = os.path.join(processed_dir, "gps_signal_strength_paris.geojson")
+    sidewalk_roughness_path = os.path.join(processed_dir, "sidewalk_roughness_paris.geojson")
+    surveillance_coverage_path = os.path.join(processed_dir, "surveillance_coverage_paris.geojson")
 
     sidewalks = None
     sidewalk_widths = None
@@ -117,7 +150,26 @@ def main(args):
     intersection_safety = None
     street_furniture_density = None
     curb_ramps = None
+    curb_ramp_availability = None
     traffic_management = None
+    zoning_regulation = None
+    zoning_laws = None
+    slope_gradient = None
+    street_lighting = None
+    bike_traffic = None
+    bicycle_traffic = None
+    charging_stations = None
+    charging_station_proximity = None
+    bike_lane = None
+    bike_lane_availability = None
+    shade = None
+    vehicle_traffic = None
+    sidewalk_width = None
+    communication_infrastructure = None
+    digital_map_existence = None
+    gps_signal_strength = None
+    sidewalk_roughness = None
+    surveillance_coverage = None
 
     if "sidewalks" in features:
         sidewalks = gpd.read_file(sidewalks_path)
@@ -145,9 +197,78 @@ def main(args):
     if "curb_ramps" in features and os.path.exists(curb_ramps_path):
         curb_ramps = gpd.read_file(curb_ramps_path)
         print(f"Reading curb ramps from {curb_ramps_path} : got {curb_ramps.shape[0]} rows")
+    if "curb_ramp_availability" in features and os.path.exists(curb_ramp_availability_path):
+        curb_ramp_availability = gpd.read_file(curb_ramp_availability_path)
+        print(
+            "Reading curb ramp availability from "
+            f"{curb_ramp_availability_path} : got {curb_ramp_availability.shape[0]} rows"
+        )
     if "traffic_management" in features and os.path.exists(traffic_management_path):
         traffic_management = gpd.read_file(traffic_management_path)
         print(f"Reading traffic management from {traffic_management_path} : got {traffic_management.shape[0]} rows")
+    if "zoning_regulation" in features and os.path.exists(zoning_regulation_path):
+        zoning_regulation = gpd.read_file(zoning_regulation_path)
+        print(f"Reading zoning regulation from {zoning_regulation_path} : got {zoning_regulation.shape[0]} rows")
+    if "zoning_laws" in features and os.path.exists(zoning_laws_path):
+        zoning_laws = gpd.read_file(zoning_laws_path)
+        print(f"Reading zoning laws from {zoning_laws_path} : got {zoning_laws.shape[0]} rows")
+    if "slope_gradient" in features and os.path.exists(slope_gradient_path):
+        slope_gradient = gpd.read_file(slope_gradient_path)
+        print(f"Reading slope gradient from {slope_gradient_path} : got {slope_gradient.shape[0]} rows")
+    if "street_lighting" in features and os.path.exists(street_lighting_path):
+        street_lighting = gpd.read_file(street_lighting_path)
+        print(f"Reading street lighting from {street_lighting_path} : got {street_lighting.shape[0]} rows")
+    if "bike_traffic" in features and os.path.exists(bike_traffic_path):
+        bike_traffic = gpd.read_file(bike_traffic_path)
+        print(f"Reading bike traffic from {bike_traffic_path} : got {bike_traffic.shape[0]} rows")
+    if "bicycle_traffic" in features and os.path.exists(bicycle_traffic_path):
+        bicycle_traffic = gpd.read_file(bicycle_traffic_path)
+        print(f"Reading bicycle traffic from {bicycle_traffic_path} : got {bicycle_traffic.shape[0]} rows")
+    if "charging_stations" in features and os.path.exists(charging_stations_path):
+        charging_stations = gpd.read_file(charging_stations_path)
+        print(f"Reading charging stations from {charging_stations_path} : got {charging_stations.shape[0]} rows")
+    if "charging_station_proximity" in features and os.path.exists(charging_station_proximity_path):
+        charging_station_proximity = gpd.read_file(charging_station_proximity_path)
+        print(
+            "Reading charging station proximity from "
+            f"{charging_station_proximity_path} : got {charging_station_proximity.shape[0]} rows"
+        )
+    if "bike_lane" in features and os.path.exists(bike_lane_path):
+        bike_lane = gpd.read_file(bike_lane_path)
+        print(f"Reading bike lane from {bike_lane_path} : got {bike_lane.shape[0]} rows")
+    if "bike_lane_availability" in features and os.path.exists(bike_lane_availability_path):
+        bike_lane_availability = gpd.read_file(bike_lane_availability_path)
+        print(
+            "Reading bike lane availability from "
+            f"{bike_lane_availability_path} : got {bike_lane_availability.shape[0]} rows"
+        )
+    if "shade" in features and os.path.exists(shade_path):
+        shade = gpd.read_file(shade_path)
+        print(f"Reading shade from {shade_path} : got {shade.shape[0]} rows")
+    if "vehicle_traffic" in features and os.path.exists(vehicle_traffic_path):
+        vehicle_traffic = gpd.read_file(vehicle_traffic_path)
+        print(f"Reading vehicle traffic from {vehicle_traffic_path} : got {vehicle_traffic.shape[0]} rows")
+    if "sidewalk_width" in features and os.path.exists(sidewalk_width_path):
+        sidewalk_width = gpd.read_file(sidewalk_width_path)
+        print(f"Reading sidewalk width from {sidewalk_width_path} : got {sidewalk_width.shape[0]} rows")
+    if "communication_infrastructure" in features and os.path.exists(communication_infrastructure_path):
+        communication_infrastructure = gpd.read_file(communication_infrastructure_path)
+        print(
+            "Reading communication infrastructure from "
+            f"{communication_infrastructure_path} : got {communication_infrastructure.shape[0]} rows"
+        )
+    if "digital_map_existence" in features and os.path.exists(digital_map_existence_path):
+        digital_map_existence = gpd.read_file(digital_map_existence_path)
+        print(f"Reading digital map existence from {digital_map_existence_path} : got {digital_map_existence.shape[0]} rows")
+    if "gps_signal_strength" in features and os.path.exists(gps_signal_strength_path):
+        gps_signal_strength = gpd.read_file(gps_signal_strength_path)
+        print(f"Reading GPS signal strength from {gps_signal_strength_path} : got {gps_signal_strength.shape[0]} rows")
+    if "sidewalk_roughness" in features and os.path.exists(sidewalk_roughness_path):
+        sidewalk_roughness = gpd.read_file(sidewalk_roughness_path)
+        print(f"Reading sidewalk roughness from {sidewalk_roughness_path} : got {sidewalk_roughness.shape[0]} rows")
+    if "surveillance_coverage" in features and os.path.exists(surveillance_coverage_path):
+        surveillance_coverage = gpd.read_file(surveillance_coverage_path)
+        print(f"Reading surveillance coverage from {surveillance_coverage_path} : got {surveillance_coverage.shape[0]} rows")
 
     plt.rc("font", family="serif")
 
@@ -166,8 +287,46 @@ def main(args):
         street_furniture_density = street_furniture_density.to_crs("EPSG:3857")
     if curb_ramps is not None:
         curb_ramps = curb_ramps.to_crs("EPSG:3857")
+    if curb_ramp_availability is not None:
+        curb_ramp_availability = curb_ramp_availability.to_crs("EPSG:3857")
     if traffic_management is not None:
         traffic_management = traffic_management.to_crs("EPSG:3857")
+    if zoning_regulation is not None:
+        zoning_regulation = zoning_regulation.to_crs("EPSG:3857")
+    if zoning_laws is not None:
+        zoning_laws = zoning_laws.to_crs("EPSG:3857")
+    if slope_gradient is not None:
+        slope_gradient = slope_gradient.to_crs("EPSG:3857")
+    if street_lighting is not None:
+        street_lighting = street_lighting.to_crs("EPSG:3857")
+    if bike_traffic is not None:
+        bike_traffic = bike_traffic.to_crs("EPSG:3857")
+    if bicycle_traffic is not None:
+        bicycle_traffic = bicycle_traffic.to_crs("EPSG:3857")
+    if charging_stations is not None:
+        charging_stations = charging_stations.to_crs("EPSG:3857")
+    if charging_station_proximity is not None:
+        charging_station_proximity = charging_station_proximity.to_crs("EPSG:3857")
+    if bike_lane is not None:
+        bike_lane = bike_lane.to_crs("EPSG:3857")
+    if bike_lane_availability is not None:
+        bike_lane_availability = bike_lane_availability.to_crs("EPSG:3857")
+    if shade is not None:
+        shade = shade.to_crs("EPSG:3857")
+    if vehicle_traffic is not None:
+        vehicle_traffic = vehicle_traffic.to_crs("EPSG:3857")
+    if sidewalk_width is not None:
+        sidewalk_width = sidewalk_width.to_crs("EPSG:3857")
+    if communication_infrastructure is not None:
+        communication_infrastructure = communication_infrastructure.to_crs("EPSG:3857")
+    if digital_map_existence is not None:
+        digital_map_existence = digital_map_existence.to_crs("EPSG:3857")
+    if gps_signal_strength is not None:
+        gps_signal_strength = gps_signal_strength.to_crs("EPSG:3857")
+    if sidewalk_roughness is not None:
+        sidewalk_roughness = sidewalk_roughness.to_crs("EPSG:3857")
+    if surveillance_coverage is not None:
+        surveillance_coverage = surveillance_coverage.to_crs("EPSG:3857")
 
     if sidewalks is not None:
         unique_tiles = sorted(sidewalks["pvp_tile"].dropna().unique())
@@ -546,6 +705,212 @@ def main(args):
         )
         print(f"Wrote {os.path.join(figures_dir, 'traffic_management_score.png')}")
 
+    if zoning_regulation is not None:
+        for flag_column, title_prefix in [
+            ("zoning_regulation_aire_pietonne_flag", "Aire piétonne"),
+            ("zoning_regulation_zone_rencontre_flag", "Zone de rencontre"),
+            ("zoning_regulation_ztl_flag", "Zone à Trafic Limité (ZTL)"),
+            ("zoning_regulation_paris_respire_flag", "Paris Respire secteur"),
+        ]:
+            plot_continuous_map(
+                zoning_regulation,
+                flag_column,
+                os.path.join(figures_dir, f"{flag_column}.png"),
+                f"{title_prefix} flag",
+                clamp_to_unit_interval=True,
+            )
+            print(f"Wrote {os.path.join(figures_dir, f'{flag_column}.png')}")
+
+        plot_continuous_map(
+            zoning_regulation,
+            "zoning_regulation_score",
+            os.path.join(figures_dir, "zoning_regulation_score.png"),
+            "Zoning regulation score (0.3 base → 0.7 calmed zone + ZTL/Respire bonuses)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'zoning_regulation_score.png')}")
+
+    if slope_gradient is not None:
+        plot_continuous_map(
+            slope_gradient,
+            "slope_gradient_elevation_m",
+            os.path.join(figures_dir, "slope_gradient_elevation_m.png"),
+            "Assigned elevation (m) per sidewalk sample point",
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'slope_gradient_elevation_m.png')}")
+        plot_continuous_map(
+            slope_gradient,
+            "slope_gradient_mean_raw",
+            os.path.join(figures_dir, "slope_gradient_mean_raw.png"),
+            "Mean slope to neighbors (rise/run) per sidewalk sample point",
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'slope_gradient_mean_raw.png')}")
+        plot_continuous_map(
+            slope_gradient,
+            "slope_gradient_score",
+            os.path.join(figures_dir, "slope_gradient_score.png"),
+            "Slope gradient score (1 = flat, 0 = steep)",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {os.path.join(figures_dir, 'slope_gradient_score.png')}")
+
+    if street_lighting is not None:
+        plot_continuous_map(
+            street_lighting, "street_lighting_lamp_count_raw",
+            os.path.join(figures_dir, "street_lighting_lamp_count_raw.png"),
+            "Public lamp count per sidewalk sample point",
+        )
+        plot_continuous_map(
+            street_lighting, "street_lighting_score",
+            os.path.join(figures_dir, "street_lighting_score.png"),
+            "Street lighting score (2.5%-99.5% clamped)", clamp_to_unit_interval=True,
+        )
+        print("Wrote street_lighting maps")
+
+    if bike_traffic is not None:
+        plot_continuous_map(
+            bike_traffic, "bike_traffic_piste_flag",
+            os.path.join(figures_dir, "bike_traffic_piste_flag.png"),
+            "Adjacent piste cyclable / couloir mixte flag", clamp_to_unit_interval=True,
+        )
+        plot_continuous_map(
+            bike_traffic, "bike_traffic_velib_count_raw",
+            os.path.join(figures_dir, "bike_traffic_velib_count_raw.png"),
+            "Vélib stations count (200 ft)",
+        )
+        plot_continuous_map(
+            bike_traffic, "bike_traffic_score",
+            os.path.join(figures_dir, "bike_traffic_score.png"),
+            "Bicycle traffic score (0.8 piste + 0.2 Vélib)", clamp_to_unit_interval=True,
+        )
+        print("Wrote bike_traffic maps")
+
+    if charging_stations is not None:
+        plot_continuous_map(
+            charging_stations, "charging_stations_count_raw",
+            os.path.join(figures_dir, "charging_stations_count_raw.png"),
+            "Vélib stations count (200 ft)",
+        )
+        plot_continuous_map(
+            charging_stations, "charging_stations_score",
+            os.path.join(figures_dir, "charging_stations_score.png"),
+            "Charging stations score (2.5%-99.5% clamped)", clamp_to_unit_interval=True,
+        )
+        print("Wrote charging_stations maps")
+
+    if bike_lane is not None:
+        plot_continuous_map(
+            bike_lane, "bike_lane_score",
+            os.path.join(figures_dir, "bike_lane_score.png"),
+            "Bike lane availability score (0 / 0.8 piste / 1.0 piste cyclable)",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote bike_lane maps")
+
+    if shade is not None:
+        plot_continuous_map(
+            shade, "shade_tree_count_raw",
+            os.path.join(figures_dir, "shade_tree_count_raw.png"),
+            "Weighted tree count (50 ft, young=0.5)",
+        )
+        plot_continuous_map(
+            shade, "shade_score",
+            os.path.join(figures_dir, "shade_score.png"),
+            "Shade score (2.5%-99.5% clamped)", clamp_to_unit_interval=True,
+        )
+        print("Wrote shade maps")
+
+    if sidewalk_width is not None:
+        plot_continuous_map(
+            sidewalk_width, "sidewalk_width_raw",
+            os.path.join(figures_dir, "sidewalk_width_feature_raw.png"),
+            "Sidewalk width raw (m)",
+        )
+        plot_continuous_map(
+            sidewalk_width, "sidewalk_width_score",
+            os.path.join(figures_dir, "sidewalk_width_feature_score.png"),
+            "Sidewalk width feature score (2.5%-99.5% clamped)",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote sidewalk_width feature maps")
+
+    if vehicle_traffic is not None:
+        plot_continuous_map(
+            vehicle_traffic, "vehicle_traffic_occupation_raw",
+            os.path.join(figures_dir, "vehicle_traffic_occupation_raw.png"),
+            "Vehicle traffic occupation rate on 2026-06-01",
+        )
+        plot_continuous_map(
+            vehicle_traffic, "vehicle_traffic_score",
+            os.path.join(figures_dir, "vehicle_traffic_score.png"),
+            "Vehicle traffic score (2.5%-99.5% clamped)",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote vehicle_traffic maps")
+
+    if curb_ramp_availability is not None:
+        plot_continuous_map(
+            curb_ramp_availability, "curb_ramp_availability_score",
+            os.path.join(figures_dir, "curb_ramp_availability_score.png"),
+            "Curb ramp availability score",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote curb_ramp_availability score map")
+
+    if zoning_laws is not None:
+        plot_continuous_map(
+            zoning_laws, "zoning_laws_score",
+            os.path.join(figures_dir, "zoning_laws_score.png"),
+            "Zoning laws score",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote zoning_laws score map")
+
+    if bicycle_traffic is not None:
+        plot_continuous_map(
+            bicycle_traffic, "bicycle_traffic_score",
+            os.path.join(figures_dir, "bicycle_traffic_score.png"),
+            "Bicycle traffic score",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote bicycle_traffic score map")
+
+    if charging_station_proximity is not None:
+        plot_continuous_map(
+            charging_station_proximity, "charging_station_proximity_score",
+            os.path.join(figures_dir, "charging_station_proximity_score.png"),
+            "Charging station proximity score",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote charging_station_proximity score map")
+
+    if bike_lane_availability is not None:
+        plot_continuous_map(
+            bike_lane_availability, "bike_lane_availability_score",
+            os.path.join(figures_dir, "bike_lane_availability_score.png"),
+            "Bike lane availability score",
+            clamp_to_unit_interval=True,
+        )
+        print("Wrote bike_lane_availability score map")
+
+    for feature_gdf, feature_name in [
+        (communication_infrastructure, "communication_infrastructure"),
+        (digital_map_existence, "digital_map_existence"),
+        (gps_signal_strength, "gps_signal_strength"),
+        (sidewalk_roughness, "sidewalk_roughness"),
+        (surveillance_coverage, "surveillance_coverage"),
+    ]:
+        if feature_gdf is None:
+            continue
+        plot_continuous_map(
+            feature_gdf,
+            f"{feature_name}_score",
+            os.path.join(figures_dir, f"{feature_name}_score.png"),
+            f"{feature_name} score",
+            clamp_to_unit_interval=True,
+        )
+        print(f"Wrote {feature_name} score map")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create simple Paris sidewalk maps.")
@@ -562,7 +927,26 @@ if __name__ == "__main__":
             "intersection_safety",
             "street_furniture_density",
             "curb_ramps",
+            "curb_ramp_availability",
+            "communication_infrastructure",
+            "digital_map_existence",
+            "gps_signal_strength",
+            "vehicle_traffic",
+            "sidewalk_width",
+            "sidewalk_roughness",
             "traffic_management",
+            "zoning_regulation",
+            "zoning_laws",
+            "slope_gradient",
+            "street_lighting",
+            "bike_traffic",
+            "bicycle_traffic",
+            "charging_stations",
+            "charging_station_proximity",
+            "surveillance_coverage",
+            "bike_lane",
+            "bike_lane_availability",
+            "shade",
         ],
         help="Which map groups to write (default: all)",
     )
