@@ -161,7 +161,10 @@ cython_debug/
 
 feature_processing/data/
 paper.pdf
-sample_nyc_street/
+sample_nyc_street/full
+sample_nyc_street/full_with_vis
+sample_nyc_street/splits
+sample_nyc_street/vlm_results/
 paris_test/data/
 paris_test/figures/
 NOTES.md

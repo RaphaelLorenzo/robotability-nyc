@@ -1,0 +1,20 @@
+Feature,Weight,Question,Default
+pedestrian_density,0.147125240502756,How do you estimate the pedestrian density on the XXX sidewalk ? 1 being very high and 0 being low.,
+crowd_dynamics,0.0947553411301599,"Do you think the dynamics of the crowd in this area is favorable to robot navigation ? 1 being very favorable (people not rushing) and 0 being unfavorable (people rushing, or highly touristic areas)",
+surface_condition,0.0920027152241103,How do you estimate the surface condition on the XXX sidewalk ? 1 being very good and 0 being very bad,
+sidewalk_width,0.0786335724717844,How do you estimate the sidewalk width on the XXX sidewalk ? 1 being very comfortable to navigate with a delivery robot and 0 being too narrow to navigate with a delivery robot,
+street_furniture_density,0.0764198497958928,How do you estimate the street furniture density on the XXX sidewalk ? 1 being very dense and cluttered and 0 being light and adequate for navigation,
+intersection_safety,0.0657201705616951,How safe do you think nearby intersections are ? 1 being intersections with a lot of safety and traffic calming equipment and 0 being unsafe,
+curb_ramp_availability,0.0595744759623968,"Do you see enough curb ramps on the XXX sidewalk to navigate with a delivery robot, score it from 0 to 1 ? 1 being more than enough curb ramps available and 0 no curb ramps at all.",
+communication_infrastructure,0.0538902663892607,IGNORED,1
+digital_map_existence,0.0476565441445885,IGNORED,1
+gps_signal_strength,0.041125317823181,IGNORED,1
+vehicle_traffic,0.0378336513460469,How dense would you say the vehicle traffic is around ? 1 being very high and 0 being very low.,
+sidewalk_roughness,0.037665272828114,How rough is the pavement of the sidewalk around ? 1 being very high and 0 being very low.,
+slope_gradient,0.0367854938300334,How steep is the XXX sidewalk according to you ? 1 being too steep to navigate with a delivery robot and 0 very flat,
+traffic_management,0.0341575238351119,IGNORED,1
+zoning_laws,0.0307599055298729,IGNORED,1
+bicycle_traffic,0.0202754343089621,How dense would you say the bike traffic is around ? 1 being very high and 0 being very low.,
+charging_station_proximity,0.018202827081173,IGNORED,1
+surveillance_coverage,0.0144243034834116,IGNORED,1
+bike_lane_availability,0.0129920937514484,"Do you see any bike lane available for navigating with a delivery robot on or next by the XXX sidewalk ? 1 meaning there is an accessible and adequate one, 0 meaning there is no bike lane at all",

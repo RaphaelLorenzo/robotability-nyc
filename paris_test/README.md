@@ -33,6 +33,8 @@ Small testbed to see how far we can reproduce the NYC sidewalk base map in Paris
 - `make_maps.py`: creates QA maps for processed sidewalks and raw/clamped feature maps for each score. Use `--features <name>` to plot a single group.
 - `sample_paris_street_view.py`: samples points from `robotability_features_paris.csv`, estimates the local sidewalk heading from neighboring points, downloads front/right/back/left Google Street View images, and writes an NYC-style `sample_paris_street/` tree (`splits/`, `full/`, `full_with_vis/`, `metadata.yaml`) with coordinate-based filenames.
 
+
+
 ## Run order
 
 ```bash
@@ -69,33 +71,59 @@ conda run -n robotability python paris_test/sample_paris_street_view.py --resume
 conda run -n robotability python paris_test/make_robotability_maps.py --level all
 conda run -n robotability python paris_test/make_robotability_interactive_map.py --level all
 conda run -n robotability python paris_test/make_maps.py
-# serve the interactive viewer (fetch needs a local HTTP server):
-python -m http.server 8000 --directory paris_test/figures/interactive
 ```
+
+
+
+## Interactive robotability map
+
+Requires `robotability_features_paris.csv` from `compute_robotability_score.py`. Build the MapLibre layers, then serve the output folder over HTTP (browsers block `fetch` from `file://`).
+
+```bash
+# Build all levels (sidewalk_full, sidewalk_segmentized, qa, pvp, arrondissement)
+conda run -n robotability python paris_test/make_robotability_interactive_map.py --level all
+
+# Optional: one or more levels only
+conda run -n robotability python paris_test/make_robotability_interactive_map.py --level qa pvp arrondissement
+
+# Serve and open http://localhost:8000/
+```
+
+Useful flags:
+
+- `--default_level qa` — level shown on first load (default: `qa`)
+- `--max_points 40000` — subsample for `sidewalk_segmentized` (default: `40000`; use `0` for every sample point)
+- `--simplify_m 3` — polygon simplify tolerance in meters (default: `2`)
+
+In the viewer, pick a level from the dropdown; click a feature to see every CSV column as raw value and level-wise 0–1 normalization.
 
 ## Feature recap
 
-| Feature | Paris | New York | Polarity |
-| --- | --- | --- | --- |
-| `pedestrian_density` | Population + amenities + schools + stops + activities | Population + local attractors | `1 = denser pedestrian context` |
-| `crowd_dynamics` | ZTI + tourist-site signal, then inverted | Tourism / crowd proxy, inverted | `1 = calmer / less tourist-heavy` |
-| `surface_condition` | Chantiers + DMR surface anomalies | Sidewalk quality / defects | `1 = better surface` |
-| `sidewalk_width` | Normalize existing `width_m` on segmentized sidewalks | Normalize sidewalk width | `1 = wider` |
-| `street_furniture_density` | PVP furniture + Trilib + fountains + clutter reports | Street-furniture density | `1 = denser furniture` |
-| `intersection_safety` | Aires piétonnes / zones de rencontre + accidents + DMR | Calmed / safer intersections | `1 = safer` |
-| `curb_ramp_availability` | Escalier penalty + accessibility-quarter bonus | Actual curb-ramp availability | `1 = more available` |
-| `communication_infrastructure` | Fixed `1.0` | Sensor / comms availability | `1 = more infrastructure` |
-| `digital_map_existence` | Fixed `1.0` | Digital-map coverage | `1 = map existence` |
-| `gps_signal_strength` | Fixed `1.0` | GPS signal quality | `1 = good signal` |
-| `vehicle_traffic` | 2026-06-01 mean road occupation rate from permanent counters | Traffic intensity / congestion proxy | `1 = more traffic` |
-| `sidewalk_roughness` | Fixed `0.0` | Roughness / vibration proxy | `1 = rougher` |
-| `slope_gradient` | Mean slope from nivellement labels and nearby sampled neighbors | Mean local slope from elevation | `1 = steeper` |
-| `traffic_management` | Feux tricolores bonus minus traffic-management anomalies | Traffic-control richness / quality | `1 = better managed` |
-| `zoning_laws` | Aires piétonnes / zones de rencontre + ZTL + Paris Respire | Regulated / calmed street regime | `1 = more protective regulation` |
-| `bicycle_traffic` | Bike-lane adjacency + nearby Vélib stations | Bicycle activity / bike presence proxy | `1 = more bike traffic` |
-| `charging_station_proximity` | Nearby Vélib stations | Nearby charging / dock access proxy | `1 = closer / denser access` |
-| `surveillance_coverage` | Fixed `1.0` | Camera / monitoring coverage | `1 = full coverage` |
-| `bike_lane_availability` | Adjacent piste / piste cyclable only | Adjacent protected cycling lane | `1 = more available` |
+
+| Feature                        | Paris                                                           | New York                               | Polarity                          |
+| ------------------------------ | --------------------------------------------------------------- | -------------------------------------- | --------------------------------- |
+| `pedestrian_density`           | Population + amenities + schools + stops + activities           | Population + local attractors          | `1 = denser pedestrian context`   |
+| `crowd_dynamics`               | ZTI + tourist-site signal, then inverted                        | Tourism / crowd proxy, inverted        | `1 = calmer / less tourist-heavy` |
+| `surface_condition`            | Chantiers + DMR surface anomalies                               | Sidewalk quality / defects             | `1 = better surface`              |
+| `sidewalk_width`               | Normalize existing `width_m` on segmentized sidewalks           | Normalize sidewalk width               | `1 = wider`                       |
+| `street_furniture_density`     | PVP furniture + Trilib + fountains + clutter reports            | Street-furniture density               | `1 = denser furniture`            |
+| `intersection_safety`          | Aires piétonnes / zones de rencontre + accidents + DMR          | Calmed / safer intersections           | `1 = safer`                       |
+| `curb_ramp_availability`       | Escalier penalty + accessibility-quarter bonus                  | Actual curb-ramp availability          | `1 = more available`              |
+| `communication_infrastructure` | Fixed `1.0`                                                     | Sensor / comms availability            | `1 = more infrastructure`         |
+| `digital_map_existence`        | Fixed `1.0`                                                     | Digital-map coverage                   | `1 = map existence`               |
+| `gps_signal_strength`          | Fixed `1.0`                                                     | GPS signal quality                     | `1 = good signal`                 |
+| `vehicle_traffic`              | 2026-06-01 mean road occupation rate from permanent counters    | Traffic intensity / congestion proxy   | `1 = more traffic`                |
+| `sidewalk_roughness`           | Fixed `0.0`                                                     | Roughness / vibration proxy            | `1 = rougher`                     |
+| `slope_gradient`               | Mean slope from nivellement labels and nearby sampled neighbors | Mean local slope from elevation        | `1 = steeper`                     |
+| `traffic_management`           | Feux tricolores bonus minus traffic-management anomalies        | Traffic-control richness / quality     | `1 = better managed`              |
+| `zoning_laws`                  | Aires piétonnes / zones de rencontre + ZTL + Paris Respire      | Regulated / calmed street regime       | `1 = more protective regulation`  |
+| `bicycle_traffic`              | Bike-lane adjacency + nearby Vélib stations                     | Bicycle activity / bike presence proxy | `1 = more bike traffic`           |
+| `charging_station_proximity`   | Nearby Vélib stations                                           | Nearby charging / dock access proxy    | `1 = closer / denser access`      |
+| `surveillance_coverage`        | Fixed `1.0`                                                     | Camera / monitoring coverage           | `1 = full coverage`               |
+| `bike_lane_availability`       | Adjacent piste / piste cyclable only                            | Adjacent protected cycling lane        | `1 = more available`              |
+
+
+
 
 ## Outputs
 
@@ -136,3 +164,4 @@ python -m http.server 8000 --directory paris_test/figures/interactive
 - `paris_test/figures/robotability_score_<level>_01.png` / `_quantiles.png`: robotability score maps per geographic level
 - `paris_test/figures/interactive/`: MapLibre HTML viewer (`index.html`) plus per-level `.geojson` / `.attrs.json` layers (regenerate with `make_robotability_interactive_map.py`; not committed)
 - `paris_test/figures/`: output maps
+
