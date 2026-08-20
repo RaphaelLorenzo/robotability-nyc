@@ -147,10 +147,9 @@ def main(args):
     points["slope_gradient_mean_raw"] = mean_slopes
     print(f"Mean slope stats: min={mean_slopes.min():.4f} mean={mean_slopes.mean():.4f} max={mean_slopes.max():.4f}")
 
+    # Match NYC: normalize steepness so 1 = steeper, 0 = flatter; polarity -1 applied later.
     points["slope_gradient_score"], lo, hi = normalize_with_quantile_clamping(points["slope_gradient_mean_raw"])
     print(f"Slope score (clamped 2.5-99.5%): {lo:.4f} -> {hi:.4f}")
-    # Invert: 1 = flat (good for robots), 0 = steep.
-    points["slope_gradient_score"] = 1.0 - points["slope_gradient_score"]
 
     keep_columns = [
         "point_index",

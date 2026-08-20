@@ -25,3 +25,4 @@ if __name__ == "__main__":
     rewrite_feature("charging_stations", "charging_station_proximity")
     rewrite_feature("bike_traffic", "bicycle_traffic")
     rewrite_feature("bike_lane", "bike_lane_availability")
+

@@ -749,7 +749,7 @@ def main(args):
             slope_gradient,
             "slope_gradient_score",
             os.path.join(figures_dir, "slope_gradient_score.png"),
-            "Slope gradient score (1 = flat, 0 = steep)",
+            "Slope gradient score (1 = steep, 0 = flat)",
             clamp_to_unit_interval=True,
         )
         print(f"Wrote {os.path.join(figures_dir, 'slope_gradient_score.png')}")
