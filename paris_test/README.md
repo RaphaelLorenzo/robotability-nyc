@@ -29,6 +29,7 @@ Small testbed to see how far we can reproduce the NYC sidewalk base map in Paris
 - `rename_feature_outputs.py`: one-shot helper that renames already computed Paris outputs to the canonical `feature_weights.csv` names without recomputing.
 - `compute_robotability_score.py`: merges all feature layers into one CSV, applies `feature_weights.csv` and NYC polarities, and writes a per-point GeoJSON score file.
 - `make_robotability_maps.py`: maps the final robotability score at `point` (default), `segment`, `qa`, `pvp`, or `arrondissement` level; writes a 0–1 map and a quantile map for each.
+- `make_robotability_interactive_map.py`: builds a MapLibre viewer (`figures/interactive/index.html`) colored by robotability at `sidewalk_full`, `sidewalk_segmentized`, `qa`, `pvp`, or `arrondissement`; click a feature to see every CSV column as raw value + level-wise 0–1 normalization.
 - `make_maps.py`: creates QA maps for processed sidewalks and raw/clamped feature maps for each score. Use `--features <name>` to plot a single group.
 - `sample_paris_street_view.py`: samples points from `robotability_features_paris.csv`, estimates the local sidewalk heading from neighboring points, downloads front/right/back/left Google Street View images, and writes an NYC-style `sample_paris_street/` tree (`splits/`, `full/`, `full_with_vis/`, `metadata.yaml`) with coordinate-based filenames.
 
@@ -66,7 +67,10 @@ conda run -n robotability python paris_test/compute_robotability_score.py
 conda run -n robotability python paris_test/sample_paris_street_view.py --sample_n 10
 conda run -n robotability python paris_test/sample_paris_street_view.py --resume  # refreshes full_with_vis and retries failures
 conda run -n robotability python paris_test/make_robotability_maps.py --level all
+conda run -n robotability python paris_test/make_robotability_interactive_map.py --level all
 conda run -n robotability python paris_test/make_maps.py
+# serve the interactive viewer (fetch needs a local HTTP server):
+python -m http.server 8000 --directory paris_test/figures/interactive
 ```
 
 ## Feature recap
@@ -130,4 +134,5 @@ conda run -n robotability python paris_test/make_maps.py
 - `paris_test/data/processed/robotability_score_paris.geojson`: individual-point GeoJSON FeatureCollection with the final robotability score
 - `paris_test/sample_paris_street/`: NYC-style Street View sample tree with `splits/` (`{lat},{lon}_{date}_{pano}_d{heading}_z2_{side}.jpg`), `full/` / `full_with_vis/` (`{lat},{lon}_{date}_{pano}_d{heading}_z2.jpg`), plus `metadata.yaml` and `metadata_manifest.csv`
 - `paris_test/figures/robotability_score_<level>_01.png` / `_quantiles.png`: robotability score maps per geographic level
+- `paris_test/figures/interactive/`: MapLibre HTML viewer (`index.html`) plus per-level `.geojson` / `.attrs.json` layers (regenerate with `make_robotability_interactive_map.py`; not committed)
 - `paris_test/figures/`: output maps
